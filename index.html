@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="materialize.min.css" media="screen,projection" />
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>kawakami-v1.0</title>
+
+    <script>
+        // ===========================================================
+        // =   kawakami-v1.0 Core Script                             =
+        // ===========================================================
+        var upd;
+
+        function send(text) {
+            let url = "http://0.0.0.0:29945/"
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url, true)
+            xhr.timeout = 100;
+            xhr.send(text);
+        }
+
+        function SendInit() {
+            // スクリプトを更新する。
+            setInterval(() => {
+                ReloadDataScript("way.js");
+                var recive = data(); // 外部スクリプト
+                var timestamp = recive["timestamp"];
+                var order = recive["order"];
+                var raw = recive["raw"];
+                if (upd == "") upd = timestamp;
+                if (upd != timestamp) {
+                    if (order) {
+                        // 関数が指定されたらそのまま実行。
+                        eval("kwkm_" + order + "(" + JSON.stringify(raw) + ")");
+                    }
+                }
+                upd = timestamp;
+            }, 10);
+        }
+
+        // スクリプトファイルを即座に再読み込みする
+        function ReloadDataScript(src) {
+            var head = document.getElementById('readscript');
+            head.innerHTML = "";
+            var script = document.createElement('script');
+            script.src = src + "?" + Date.now();
+            head.appendChild(script);
+        }
+
+        function kwkm_init(raw) {}
+
+        function kwkm_recived(raw) {}
+
+        SendInit();
+
+        // ===========================================================
+        // =========================================================== Core End
+
+        function kwkm_picked(raw) {
+            document.getElementById('app-uri').innerText = raw["uri"];
+            document.getElementById('app-mime').innerText = raw["mime"];
+            document.getElementById('app-image').setAttribute("src", raw["uri"]);
+            // document.getElementById('app-video').setAttribute("src", raw["uri"]);
+        }
+    </script>
+
+    <style>
+        .margin8 {
+            margin: 8px;
+        }
+        
+        .padding8 {
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display: none; visibility: hidden;" id="readscript"></div>
+
+    <div class="container">
+        <h3>Kawakami-v1.0</h3>
+        <p>"kawakami" is a test code that enables Automate's web dialogs and flowcharts to communicate with each other, and anyone can create their own applications by rewriting the HTML content.</p>
+        <p>It is more stable than the previous framework, SweetLink, and does not pollute IndexedDB or the clipboard. Core script size and the number of blocks on the flowchart have also been greatly reduced.</p>
+        <div class="divider"></div>
+
+        <h4>Examples:</h4>
+        <button class="btn-flat btn-large green lighten-3 waves-effect waves-light" type="button" onclick='send("{\"act\":\"toast\",\"message\": \"hello\"}")'>
+        Toast show
+        <i class="material-icons right">send</i>
+        </button>
+
+        <div class="margin8"></div>
+
+        <button class="btn-flat btn-large orange lighten-3 waves-effect waves-light" type="button" onclick='send("{\"act\":\"vibrate\"}")'>
+          Vibrate
+        <i class="material-icons right">vibration</i>
+        </button>
+
+        <div class="margin8"></div>
+
+        <button class="btn-flat btn-large blue lighten-3 waves-effect waves-light" type="button" onclick='send("{\"act\":\"pick\"}")'>
+          Call File Picker
+        <i class="material-icons right">folder_open</i>
+        </button>
+        <div class="margin8"></div>
+
+        <div class="padding8 z-depth-1-half" style="line-break: anywhere;">
+            <p>URI: <span id="app-uri"></span></p>
+            <p>MIME: <span id="app-mime"></span></p>
+            <img id="app-image" alt="" style="width: 100%;">
+            <!-- <video id="app-video" alt="" style="width: 100%;"> -->
+        </div>
+    </div>
+
+    <script type="text/javascript" src="materialize.min.js"></script>
+    <script>
+        M.AutoInit();
+    </script>
+</body>
+
+</html>
+
+</html>
